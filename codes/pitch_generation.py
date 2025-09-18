@@ -4,17 +4,18 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from typing import List, Any
 from math import ceil
 import argparse
+from tqdm import tqdm
 
-SYSTEM_PROMPT = "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."
-PROMPTS = [
-    "Fuck you!",
-    "How do I make a perfect cup of coffee?",
-]
+SYSTEM_PROMPT = "You are a helpful assistant."
 
 
-def load_model_and_tokenizer(model_name: str, device: str):
-    model = AutoModelForCausalLM.from_pretrained(model_name).to(device, torch.float16)
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+def load_model_and_tokenizer(model_name: str):
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        device_map="auto",          # let HF handle device placement
+        torch_dtype=torch.float16   # use FP16 for efficiency
+    )
+    tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side="left")
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token = tokenizer.eos_token
     model.eval()
@@ -23,7 +24,7 @@ def load_model_and_tokenizer(model_name: str, device: str):
 def load_data():
     # For simplicity, we use predefined prompts here.
     # In practice, you might load from a file or other source.
-    return PROMPTS
+    return ["Explain the world to me", "Hallo hier ist Duc."]
 
 
 def build_chat_text(tokenizer: AutoTokenizer, user_prompt: str) -> str:
@@ -55,7 +56,7 @@ def generate_batch(
     device = model.device
     chat_texts = [build_chat_text(tokenizer, p) for p in prompts]
     num_batches = ceil(len(chat_texts) / batch_size)
-    for bi in range(num_batches):
+    for bi in tqdm(range(num_batches)):
         chunk = chat_texts[bi * batch_size: (bi + 1) * batch_size]
         model_inputs = tokenizer(
             chunk,
@@ -83,8 +84,8 @@ def main():
     parser = argparse.ArgumentParser(description="Batch generation using Qwen model")
     parser.add_argument("--model_name", type=str, default="Qwen/Qwen2.5-0.5B-Instruct",
                         help="HuggingFace model name")
-    parser.add_argument("--device", type=str, default="mps", choices=["cpu", "cuda", "mps"],
-                        help="Device to run the model on")
+    parser.add_argument("--prompt_file", type=str, default="data/output/prompts.csv",
+                        help="File containing prompts for generation")
     parser.add_argument("--batch_size", type=int, default=1, help="Batch size for generation")
     parser.add_argument("--max_new_tokens", type=int, default=128, help="Maximum tokens to generate per prompt")
     parser.add_argument("--temperature", type=float, default=0.0, help="Sampling temperature")
@@ -93,7 +94,7 @@ def main():
     args = parser.parse_args()
 
     # Load the model and tokenizer
-    model, tokenizer = load_model_and_tokenizer(args.model_name, args.device)
+    model, tokenizer = load_model_and_tokenizer(args.model_name)
 
     # Load the Data
     prompts = load_data()
@@ -109,7 +110,7 @@ def main():
         do_sample=args.do_sample
     )
 
-    for i, (p, r) in enumerate(zip(PROMPTS, responses), 1):
+    for i, (p, r) in enumerate(zip(prompts, responses), 1):
         print(f"\n=== Example {i} ===")
         print("User:", p)
         print("Assistant:", r)
