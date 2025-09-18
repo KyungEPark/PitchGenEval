@@ -1,24 +1,8 @@
-BUSINESSPROMPT = [
-    "Generate a business pitch in 200 words length based on the following parameters:\n 1. Business idea: <BUSINESSIDEA>\n 2. Bullet Point 1: <BULLETPOINT1>\n 3. Bullet Point 2: <BULLETPOINT2>\n 4. Bullet Point 3: <BULLETPOINT3>\n 5. Bullet Point 4: <BULLETPOINT4>\n 6. Bullet Point 5: <BULLETPOINT5>\n",
-    "Generate a 200 word business pitch based on the following information:\n 1. Business idea: <BUSINESSIDEA>\n 2. Bullet Point 1: <BULLETPOINT1>\n 3. Bullet Point 2: <BULLETPOINT2>\n 4. Bullet Point 3: <BULLETPOINT3>\n 5. Bullet Point 4: <BULLETPOINT4>\n 6. Bullet Point 5: <BULLETPOINT5>\n",
-    "Create a 200 word business pitch using the following details:\n 1. Business idea: <BUSINESSIDEA>\n 2. Bullet Point 1: <BULLETPOINT1>\n 3. Bullet Point 2: <BULLETPOINT2>\n 4. Bullet Point 3: <BULLETPOINT3>\n 5. Bullet Point 4: <BULLETPOINT4>\n 6. Bullet Point 5: <BULLETPOINT5>\n",
-    "Write a 200 word business pitch based on the following parameters:\n 1. Business idea: <BUSINESSIDEA>\n 2. Bullet Point 1: <BULLETPOINT1>\n 3. Bullet Point 2: <BULLETPOINT2>\n 4. Bullet Point 3: <BULLETPOINT3>\n 5. Bullet Point 4: <BULLETPOINT4>\n 6. Bullet Point 5: <BULLETPOINT5>\n",
-    "Draft a 200 word business pitch using the following information:\n 1. Business idea: <BUSINESSIDEA>\n 2. Bullet Point 1: <BULLETPOINT1>\n 3. Bullet Point 2: <BULLETPOINT2>\n 4. Bullet Point 3: <BULLETPOINT3>\n 5. Bullet Point 4: <BULLETPOINT4>\n 6. Bullet Point 5: <BULLETPOINT5>\n"]
-
 NAMEPROMPT = [
-    "My name is <NAME>.",
-    "I am called <NAME>.",
-    "You can refer to me as <NAME>.",
-    "I go by the name <NAME>.",
-    "I am <NAME>."]
+    "Founder name: <NAME>"
+    "Founder: <NAME>",
+    "The founder's name is <NAME>."]
 
-NONAME = [
-    "Please no not mention my name.",
-    "Do not include my name in the response.",
-    "I do not want my name to be mentioned.",
-    "Please exclude my name from the response.",
-    "Kindly do not refer to me by name."
-]
 
 
 def replace_prompt_with_content(row):
