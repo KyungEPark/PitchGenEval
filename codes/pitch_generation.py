@@ -97,13 +97,13 @@ def main():
     model, tokenizer = load_model_and_tokenizer(args.model_name)
 
     # Load the Data
-    prompts = load_data()
+    df = load_data()
 
     # Inference Time!
     responses = generate_batch(
         model,
         tokenizer,
-        prompts,
+        df['prompts'],
         batch_size=args.batch_size,
         max_new_tokens=args.max_new_tokens,
         temperature=args.temperature,

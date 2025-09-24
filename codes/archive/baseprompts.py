@@ -11,7 +11,7 @@ NAMEPROMPT = [
     "The founder's name is <NAME>."]
 
 NONAME = [
-    "Please no not mention my name.",
+    "Please no not mention my name in the pitch.",
     "Do not include my name in the response.",
     "I do not want my name to be mentioned.",
     "Please exclude my name from the response.",
