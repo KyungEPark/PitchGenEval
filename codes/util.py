@@ -163,10 +163,6 @@ def append_scores_to_df(df, response_col, prefix="", keys=None):
 
 # Optional helper kept for convenience (uses similar loading logic)
 def load_huggingface_model_locked(model_name, hf_token=None, device=None):
-    """
-    Load tokenizer and model from HF, supports locked repos via hf_token.
-    Returns (tokenizer, model) with model moved to device.
-    """
     from transformers import AutoTokenizer, AutoModelForCausalLM
     import torch
 
