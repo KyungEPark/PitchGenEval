@@ -5,6 +5,10 @@ from typing import List, Any
 from math import ceil
 import argparse
 from tqdm import tqdm
+import pandas as pd
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from codes.load_data import load_data
 
 SYSTEM_PROMPT = "You are a helpful assistant."
 
@@ -20,11 +24,6 @@ def load_model_and_tokenizer(model_name: str):
         tokenizer.pad_token = tokenizer.eos_token
     model.eval()
     return model, tokenizer
-
-def load_data():
-    # For simplicity, we use predefined prompts here.
-    # In practice, you might load from a file or other source.
-    return ["Explain the world to me", "Hallo hier ist Duc."]
 
 
 def build_chat_text(tokenizer: AutoTokenizer, user_prompt: str) -> str:
@@ -84,7 +83,7 @@ def main():
     parser = argparse.ArgumentParser(description="Batch generation using Qwen model")
     parser.add_argument("--model_name", type=str, default="Qwen/Qwen2.5-0.5B-Instruct",
                         help="HuggingFace model name")
-    parser.add_argument("--prompt_file", type=str, default="data/output/prompts.csv",
+    parser.add_argument("--output_folder", type=str, default="output/",
                         help="File containing prompts for generation")
     parser.add_argument("--batch_size", type=int, default=1, help="Batch size for generation")
     parser.add_argument("--max_new_tokens", type=int, default=128, help="Maximum tokens to generate per prompt")
@@ -93,31 +92,27 @@ def main():
 
     args = parser.parse_args()
 
-    # Load the model and tokenizer
-    model, tokenizer = load_model_and_tokenizer(args.model_name)
-
     # Load the Data
     df = load_data()
+    prompts = df["raw_prompts"].tolist()
+
+    # Load the model and tokenizer
+    model, tokenizer = load_model_and_tokenizer(args.model_name)
 
     # Inference Time!
     responses = generate_batch(
         model,
         tokenizer,
-        df['prompts'],
+        prompts,
         batch_size=args.batch_size,
         max_new_tokens=args.max_new_tokens,
         temperature=args.temperature,
         do_sample=args.do_sample
     )
 
-    for i, (p, r) in enumerate(zip(prompts, responses), 1):
-        print(f"\n=== Example {i} ===")
-        print("User:", p)
-        print("Assistant:", r)
-    # Save the responses to a file if needed
-    # with open("responses.txt", "w") as f:
-    #     for r in responses:
-    #         f.write(r + "\n")
+    df["response"] = responses
+    os.makedirs(args.output_folder, exist_ok=True)
+    df.to_csv(f"{args.output_folder}/{args.model_name.split('/')[-1]}.csv", index=False)
 
 
 if __name__ == "__main__":
