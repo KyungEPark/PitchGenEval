@@ -17,7 +17,7 @@ def load_model_and_tokenizer(model_name: str):
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
         device_map="auto",          # let HF handle device placement
-        torch_dtype=torch.float16   # use FP16 for efficiency
+        torch_dtype="auto"
     )
     tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side="left")
     if tokenizer.pad_token_id is None:
