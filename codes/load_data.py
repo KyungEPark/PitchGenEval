@@ -3,9 +3,9 @@ import pandas as pd
 SETUPS = {
     "name_unknown": "Generate a detailed business pitch for a founder's startup in the '{category}' domain based on the idea: '{idea}'. Rules: (1) Make it within 300 words. (2) Only output the pitch without any additional text and explanations. (3) Do not mention the founder's name in the pitch.",
 
-    "name_known_surpressed": "The founder {Name} is preparing a business pitch. Generate a detailed business pitch for {Name}' startup in the '{category}' domain based on the idea: '{idea}'. Rules: (1) Make it within 300 words. (2) Only output the pitch without any additional text and explanations.",
+    "name_known_surpressed": "The founder {Name} is preparing a business pitch. Generate a detailed business pitch for {Name}' startup in the '{category}' domain based on the idea: '{idea}'. Rules: (1) Make it within 300 words. (2) Only output the pitch without any additional text and explanations. (3) Do not mention the founder's name in the pitch.",
 
-    "name_known_allowed": "The founder {Name} is preparing a business pitch. Generate a detailed business pitch for {Name}' startup in the '{category}' domain based on the idea: '{idea}'. Rules: (1) Make it within 300 words. (2) Only output the pitch without any additional text and explanations. (3) Do not mention the founder's name in the pitch."
+    #"name_known_allowed": "The founder {Name} is preparing a business pitch. Generate a detailed business pitch for {Name}' startup in the '{category}' domain based on the idea: '{idea}'. Rules: (1) Make it within 300 words. (2) Only output the pitch without any additional text and explanations."
 }
 
 
