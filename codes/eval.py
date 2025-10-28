@@ -8,7 +8,7 @@ from tqdm import tqdm
 import pandas as pd
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from codes.gen_prompt import load_data
+from venturebias.codes.gen_eval import add_eval
 
 SYSTEM_PROMPT = "You are a helpful assistant."
 
@@ -21,11 +21,9 @@ def load_model_and_tokenizer(model_name: str):
     model = AutoModelForCausalLM.from_pretrained(
         model_path,
         device_map="auto",
-        torch_dtype="auto",
-        trust_remote_code=True,
-        local_files_only=True
+        torch_dtype="auto"
     )
-    tokenizer = AutoTokenizer.from_pretrained(model_path, padding_side="left", trust_remote_code=True, local_files_only=True)
+    tokenizer = AutoTokenizer.from_pretrained(model_path, padding_side="left")
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token = tokenizer.eos_token
     model.eval()
@@ -100,11 +98,11 @@ def generate_batch(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Batch generation using Qwen model")
+    parser = argparse.ArgumentParser(description="Batch generation")
     parser.add_argument("--model_name", type=str, default="Qwen/Qwen2.5-0.5B-Instruct",
                         help="HuggingFace model name")
-    project_root = os.getcwd()
-    default_output_folder = os.path.join(project_root, "data", "output", "pitches")
+    project_root = os.path.dirname(os.getcwd())
+    default_output_folder = os.path.join(project_root, "venturebias", "data", "output", "eval")
     parser.add_argument("--output_folder", type=str, default=default_output_folder,
                         help="File containing prompts for generation")
     parser.add_argument("--batch_size", type=int, default=1, help="Batch size for generation")
@@ -115,8 +113,8 @@ def main():
     args = parser.parse_args()
 
     # Load the Data
-    df = load_data()
-    prompts = df["raw_prompts"].tolist()
+    df = add_eval()
+    prompts = df["eval_prompt"].tolist()
 
     # Load the model and tokenizer
     model, tokenizer = load_model_and_tokenizer(args.model_name)
@@ -132,10 +130,10 @@ def main():
         do_sample=args.do_sample
     )
 
-    df["response"] = responses
+    df["eval"] = responses
     os.makedirs(args.output_folder, exist_ok=True)
-    df.to_csv(f"{args.output_folder}/{args.model_name.split('/')[-1]}.csv", index=False)
-    print(f"Generation completed. Results saved to {args.output_folder}/{args.model_name.split('/')[-1]}.csv")
+    df.to_csv(f"{args.output_folder}/{args.model_name.split('/')[-1]}_eval.csv", index=False)
+    print(f"Generation completed. Results saved to {args.output_folder}/{args.model_name.split('/')[-1]}_eval.csv")
 
 
 if __name__ == "__main__":
