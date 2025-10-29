@@ -3,22 +3,22 @@
 #SBATCH --nodes=1                        # Number of compute nodes required
 #SBATCH --ntasks-per-node=1              # Number of tasks per node
 #SBATCH --gres=gpu:1                  
-#SBATCH --time=05:00:00                  # Maximum runtime
+#SBATCH --time=15:00:00                  # Maximum runtime
 #SBATCH --mem=50gb
 #SBATCH --partition=dc-hwai
-#SBATCH --output /p/project/westai0091/venturebias/logs/slurm-%j.out
+#SBATCH --output /p/project1/westai0091/venturebias/logs/slurm-%j.out
 
 
 now=$(date +"%T")
 echo "Program starts:  $now"
 
 
-source /p/project/westai0091/.bashrc
+source /p/project1/westai0091/.bashrc
 eval "$(micromamba shell hook --shell bash)"
 micromamba activate stat
 which python
 python -c "import transformers; print('Transformers version:', transformers.__version__)"
-cd /p/project/westai0091/venturebias
+cd /p/project1/westai0091/venturebias
 
 MODEL_NAME="gpt-oss-20b"
 BATCH_SIZE=10

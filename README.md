@@ -30,7 +30,6 @@ By showing this, we aim to show that not only is the use of LLM in each step sub
 - Qwen/Qwen3-30B-A3B-Instruct-2507
 - google/gemma-3-27b-it
 - microsoft/phi-4
-- mistralai/Mistral-Small-3.2-24B-Instruct-2506
 - openai/gpt-oss-20b
 
 ### Prompts
