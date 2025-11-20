@@ -13,6 +13,6 @@ def add_eval(MODEL_NAME: str):
     df_pitches["eval_prompt"] = PROMPT + "\n\nPitch:\n" + df_pitches["response"]
 
     # !!!PLEASE COMMENT OUT AFTER TEST!!!
-    df_pitches = df_pitches.sample(n=10, random_state=42).reset_index(drop=True)
+    #df_pitches = df_pitches.sample(n=10, random_state=42).reset_index(drop=True)
 
     return df_pitches
