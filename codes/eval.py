@@ -172,7 +172,7 @@ def main():
     full_outputs = parse_assistantfinal(full_outputs)
     df["eval"] = full_outputs
     os.makedirs(args.output_folder, exist_ok=True)
-    df.to_csv(f"{args.output_folder}/{args.model_name}_eval_test.csv", index=False) # PLEASE DELETE _TEST AFTER TESTING
+    df.to_csv(f"{args.output_folder}/{args.model_name}_eval.csv", index=False) # PLEASE DELETE _TEST AFTER TESTING
     print(f"Generation completed. Results saved to {args.output_folder}/{args.model_name.split('/')[-1]}_eval.csv")
 
 
