@@ -3,7 +3,7 @@
 #SBATCH --nodes=1                        # Number of compute nodes required
 #SBATCH --ntasks-per-node=1              # Number of tasks per node
 #SBATCH --gres=gpu:1                  
-#SBATCH --time=15:00:00                  # Maximum runtime
+#SBATCH --time=20:00:00                  # Maximum runtime
 #SBATCH --mem=50gb
 #SBATCH --partition=dc-hwai
 #SBATCH --output /p/project1/westai0091/venturebias/logs/slurm-%j.out
@@ -20,7 +20,7 @@ which python
 python -c "import transformers; print('Transformers version:', transformers.__version__)"
 cd /p/project1/westai0091/venturebias
 
-MODEL_NAME="gpt-oss-20b"
+MODEL_NAME="Qwen3-30B-A3B-Instruct-2507"
 BATCH_SIZE=10
 MAX_NEW_TOKENS=5000
 TEMPERATURE=0.0

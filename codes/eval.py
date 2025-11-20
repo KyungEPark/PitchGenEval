@@ -8,7 +8,8 @@ from tqdm import tqdm
 import pandas as pd
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from venturebias.codes.gen_eval import add_eval
+from codes.gen_eval import add_eval
+from codes.util import *
 
 SYSTEM_PROMPT = "You are a helpful assistant."
 
@@ -44,7 +45,31 @@ def load_model_and_tokenizer(model_name: str):
     return model, tokenizer
 '''
 
+def extract_generated_part(tokenizer, model_inputs, gen):
+    outputs = []
+    for g, inp in zip(gen, model_inputs["input_ids"]):
+        # decode full input prompt
+        prompt_text = tokenizer.decode(
+            inp,
+            skip_special_tokens=True,
+            clean_up_tokenization_spaces=True
+        )
+ 
+        # decode full generated sequence
+        text = tokenizer.decode(
+            g,
+            skip_special_tokens=True,
+            clean_up_tokenization_spaces=True
+        )
+ 
+        # keep only continuation
+        continuation = text[len(prompt_text):].strip()
+        outputs.append(continuation)
+ 
+    return outputs
+
 def build_chat_text(tokenizer: AutoTokenizer, user_prompt: str) -> str:
+    user_prompt = str(user_prompt)
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": user_prompt},
@@ -57,6 +82,20 @@ def build_chat_text(tokenizer: AutoTokenizer, user_prompt: str) -> str:
 
 
 @torch.inference_mode()
+
+def strip_prompt(prompt_text: str, full_output: str, tokenizer):
+    # Tokenize prompt and output
+    prompt_ids = tokenizer(prompt_text, add_special_tokens=False).input_ids
+    output_ids = tokenizer(full_output, add_special_tokens=False).input_ids
+
+    # Edge case: output shorter than prompt
+    if len(output_ids) <= len(prompt_ids):
+        return full_output.strip()
+
+    # Keep only the newly generated part
+    gen_ids = output_ids[len(prompt_ids):]
+    return tokenizer.decode(gen_ids, skip_special_tokens=True).strip()
+
 def generate_batch(
     model,
     tokenizer,
@@ -93,8 +132,9 @@ def generate_batch(
             skip_special_tokens=True,
             clean_up_tokenization_spaces=True
         )
+        generated_texts = extract_generated_part(tokenizer, model_inputs, gen)
         outputs += generated_texts
-    return outputs
+    return outputs, chat_texts
 
 
 def main():
@@ -113,14 +153,14 @@ def main():
     args = parser.parse_args()
 
     # Load the Data
-    df = add_eval()
+    df = add_eval(args.model_name)
     prompts = df["eval_prompt"].tolist()
 
     # Load the model and tokenizer
     model, tokenizer = load_model_and_tokenizer(args.model_name)
 
     # Inference
-    responses = generate_batch(
+    full_outputs, chat_texts = generate_batch(
         model,
         tokenizer,
         prompts,
@@ -129,10 +169,10 @@ def main():
         temperature=args.temperature,
         do_sample=args.do_sample
     )
-
-    df["eval"] = responses
+    full_outputs = parse_assistantfinal(full_outputs)
+    df["eval"] = full_outputs
     os.makedirs(args.output_folder, exist_ok=True)
-    df.to_csv(f"{args.output_folder}/{args.model_name.split('/')[-1]}_eval.csv", index=False)
+    df.to_csv(f"{args.output_folder}/{args.model_name}_eval_test.csv", index=False) # PLEASE DELETE _TEST AFTER TESTING
     print(f"Generation completed. Results saved to {args.output_folder}/{args.model_name.split('/')[-1]}_eval.csv")
 
 

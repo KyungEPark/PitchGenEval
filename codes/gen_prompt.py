@@ -23,5 +23,8 @@ def load_data():
     df_extended["raw_prompts"] = df_extended.apply(
         lambda row: SETUPS[row["setup"]].format(**row), axis=1
     )
+    
+    # !!!PLEASE COMMENT OUT AFTER TEST!!!
+    #df_extended = df_extended.sample(n=10, random_state=42).reset_index(drop=True)
 
     return df_extended

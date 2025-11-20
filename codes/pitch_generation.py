@@ -9,95 +9,10 @@ import pandas as pd
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from codes.gen_prompt import load_data
-
-SYSTEM_PROMPT = "You are a helpful assistant."
-
-import os
-
-def load_model_and_tokenizer(model_name: str):
-    local_dir = f"/p/project1/westai0091/Models/{model_name}"
-    model_path = local_dir
-
-    model = AutoModelForCausalLM.from_pretrained(
-        model_path,
-        device_map="auto",
-        torch_dtype="auto",
-        trust_remote_code=True,
-        local_files_only=True
-    )
-    tokenizer = AutoTokenizer.from_pretrained(model_path, padding_side="left", trust_remote_code=True, local_files_only=True)
-    if tokenizer.pad_token_id is None:
-        tokenizer.pad_token = tokenizer.eos_token
-    model.eval()
-    return model, tokenizer
-
-
-'''
-def load_model_and_tokenizer(model_name: str):
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name,
-        device_map="auto",          # let HF handle device placement
-        torch_dtype="auto"
-    )
-    tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side="left")
-    if tokenizer.pad_token_id is None:
-        tokenizer.pad_token = tokenizer.eos_token
-    model.eval()
-    return model, tokenizer
-'''
-
-def build_chat_text(tokenizer: AutoTokenizer, user_prompt: str) -> str:
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": user_prompt},
-    ]
-    return tokenizer.apply_chat_template(
-        messages,
-        tokenize=False,
-        add_generation_prompt=True
-    )
+from codes.util import *
 
 
 @torch.inference_mode()
-def generate_batch(
-    model,
-    tokenizer,
-    prompts: List[str],
-    batch_size: int = 8,
-    max_new_tokens: int = 256,
-    temperature: float = 0.0,
-    top_p: float = 1.0,
-    do_sample: bool = False,
-    **gen_kwargs: Any
-) -> List[str]:
-
-    outputs: List[str] = []
-    device = model.device
-    chat_texts = [build_chat_text(tokenizer, p) for p in prompts]
-    num_batches = ceil(len(chat_texts) / batch_size)
-    for bi in tqdm(range(num_batches)):
-        chunk = chat_texts[bi * batch_size: (bi + 1) * batch_size]
-        model_inputs = tokenizer(
-            chunk,
-            return_tensors="pt",
-            padding=True,
-            truncation=False
-        ).to(device)
-        gen = model.generate(
-            **model_inputs,
-            max_new_tokens=max_new_tokens,
-            do_sample=do_sample,
-            temperature=temperature,
-            top_p=top_p,
-        )
-        generated_texts = tokenizer.batch_decode(
-            gen,
-            skip_special_tokens=True,
-            clean_up_tokenization_spaces=True
-        )
-        outputs += generated_texts
-    return outputs
-
 
 def main():
     parser = argparse.ArgumentParser(description="Batch generation using Qwen model")
@@ -122,7 +37,7 @@ def main():
     model, tokenizer = load_model_and_tokenizer(args.model_name)
 
     # Inference
-    responses = generate_batch(
+    full_outputs, chat_texts = generate_batch(
         model,
         tokenizer,
         prompts,
@@ -131,10 +46,10 @@ def main():
         temperature=args.temperature,
         do_sample=args.do_sample
     )
-
-    df["response"] = responses
+    full_outputs = parse_assistantfinal(full_outputs)
+    df["response"] = full_outputs
     os.makedirs(args.output_folder, exist_ok=True)
-    df.to_csv(f"{args.output_folder}/{args.model_name.split('/')[-1]}.csv", index=False)
+    df.to_csv(f"{args.output_folder}/{args.model_name.split('/')[-1]}_test.csv", index=False)
     print(f"Generation completed. Results saved to {args.output_folder}/{args.model_name.split('/')[-1]}.csv")
 
 
