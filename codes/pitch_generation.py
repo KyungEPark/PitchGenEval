@@ -49,7 +49,7 @@ def main():
     full_outputs = parse_assistantfinal(full_outputs)
     df["response"] = full_outputs
     os.makedirs(args.output_folder, exist_ok=True)
-    df.to_csv(f"{args.output_folder}/{args.model_name.split('/')[-1]}_test.csv", index=False)
+    df.to_csv(f"{args.output_folder}/{args.model_name.split('/')[-1]}.csv", index=False)
     print(f"Generation completed. Results saved to {args.output_folder}/{args.model_name.split('/')[-1]}.csv")
 
 
