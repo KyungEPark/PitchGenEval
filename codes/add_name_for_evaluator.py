@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-folder = "/Users/duc/Desktop/Projects/Ongoing/PitchGenEval/plots/output"  # change this
+folder = "/p/project1/westai0091/venturebias/data/output/pitches"  # change this
 
 for file in os.listdir(folder):
     if file.endswith(".csv"):
